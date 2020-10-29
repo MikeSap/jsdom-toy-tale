@@ -62,17 +62,23 @@ function createFormListeners() {
   })  
 }
 
+
 function updateLikes(){
  
   toyCollection.addEventListener('click', function(e){
+
+    var colors = ['#ff0000', '#00ff00', '#0000ff'];
+    var random_color = colors[Math.floor(Math.random() * colors.length)];
+
     if (e.target.className === 'like-btn'){
       updateLike(e)
     } else if (e.target.className === 'toy-avatar'){
-      e.target.parentNode.setAttribute('style', 'background-color: red;')
+      e.target.parentNode.style.backgroundColor = random_color
     } else if (e.target.className === 'card'){
-      e.target.setAttribute('style', 'background-color: red;')
-    }
+      e.target.style.backgroundColor = random_color
+    }     
   })
+}
 
   function updateLike(e){    
     const toyId = e.target.dataset.id
@@ -93,13 +99,5 @@ function updateLikes(){
       .then(resp => resp.json())      
       .then(toy => e.target.previousElementSibling.innerHTML = `${toy.likes} Likes`)
   }
-}
-
-
-
-
-
-
-
 
 main()
