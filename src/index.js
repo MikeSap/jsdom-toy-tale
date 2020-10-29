@@ -4,20 +4,23 @@ const addBtn = document.querySelector("#new-toy-btn");
 const toyFormContainer = document.querySelector(".container");
 
 function main() {
-  fetchToys()
   renderToys()
 
 }
 
-function fetchToys() {
+function renderToys() {
   fetch('http://localhost:3000/toys')
     .then(resp => resp.json())
-    .then(json => renderToys(json));
+    .then(toys => {
+      toys.forEach(renderToy)
+    });
 }
 
-function renderToys(toys) {
-
+function renderToy(toy) {
+  const toyCollection = document.querySelector('#toy-collection')
+  toyCollection.innerHTML += `<p>${toy.name} - <img src= ${toy.image} alt=${toy.name}></p>`
 }
+
 
 
 
