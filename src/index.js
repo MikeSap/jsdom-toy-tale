@@ -1,12 +1,11 @@
-let addToy = false;
-const form = document.querySelector('.add-toy-form')
-const addBtn = document.querySelector("#new-toy-btn");
-const toyFormContainer = document.querySelector(".container");
-
 function main() {
   renderToys()
-
+  createFormListeners()
+  updateLikes()
 }
+
+const toyCollection = document.querySelector('#toy-collection')
+
 
 function renderToys() {
   fetch('http://localhost:3000/toys')
@@ -17,12 +16,16 @@ function renderToys() {
 }
 
 function renderToy(toy) {
-  const toyCollection = document.querySelector('#toy-collection')
-  toyCollection.innerHTML += `<p>${toy.name} - <img src= ${toy.image} alt=${toy.name}></p>`
+  toyCollection.innerHTML += `<div class="card"><h2>${toy.name}</h2> <img src= ${toy.image} alt=${toy.name} class = 'toy-avatar'><p>${toy.likes} Likes</p><button data-id= ${toy.id} class='like-btn'>Like</button></div>`
 }
 
 
+function createFormListeners() {
 
+  let addToy = false;
+  const addBtn = document.querySelector("#new-toy-btn");
+  const toyFormContainer = document.querySelector(".container");
+  const form = document.querySelector('.add-toy-form')
 
   addBtn.addEventListener("click", () => {
     // hide & seek with the form
@@ -34,24 +37,67 @@ function renderToy(toy) {
     }
   });
 
+  form.addEventListener('submit', function(e) {
+    e.preventDefault()  
 
-form.addEventListener('submit', function(e) {
-  e.preventDefault()
-
-  fetch('http://localhost:3000/toys', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    },
-    body: JSON.stringify({
+    const formData = {
       name: e.target["name"].value,
-      image: e.target["image"].value
-    })
-  })
-  e.target.reset()
+      image: e.target["image"].value,
+      likes: 0
+    }
 
-})
+    fetch('http://localhost:3000/toys', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(formData)
+    })
+      .then(resp => resp.json())
+      .then(toy => renderToy(toy))
+    e.target.reset()
+    addToy = !addToy;
+    toyFormContainer.style.display = "none"
+  })  
+}
+
+function updateLikes(){
+ 
+  toyCollection.addEventListener('click', function(e){
+    if (e.target.className === 'like-btn'){
+      updateLike(e)
+    } else if (e.target.className === 'toy-avatar'){
+      e.target.parentNode.setAttribute('style', 'background-color: red;')
+    } else if (e.target.className === 'card'){
+      e.target.setAttribute('style', 'background-color: red;')
+    }
+  })
+
+  function updateLike(e){    
+    const toyId = e.target.dataset.id
+    const toyLikes = e.target.previousElementSibling.innerText.split(' ')
+
+    const formData = {
+      likes: parseInt(toyLikes[0]) + 1
+    }    
+
+    fetch(`http://localhost:3000/toys/${toyId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(formData)
+    })      
+      .then(resp => resp.json())      
+      .then(toy => e.target.previousElementSibling.innerHTML = `${toy.likes} Likes`)
+  }
+}
+
+
+
+
 
 
 
